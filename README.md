@@ -16,13 +16,13 @@ Clone the project to your computer, using the terminal:
 
 Open the project in Android studio and rename the app package by using the refactor tool in the `AndroidManifest.xml` file:
 
-![Refactoring the package name](/manifest.png)
+![Refactoring the package name](manifest.png)
 
 Then follow the steps in the [docs](https://developer.vonage.com/client-sdk/setup/set-up-push-notifications/android) to get your application registered with Firebase and Vonage.
 
 Add your JWT to the `ClientManager` class then run the app. Click the button to enable the telecom permissions for this app:
 
-![Enable the telecom permissions](/permission.png)
+![Enable the telecom permissions](permission.png)
 
 Return to the app and login, this will register this device token with Vonage for push notifications. To handle push notifications correctly the app needs to not be logged in so run the app again and this time _do not_ log in. 
 
