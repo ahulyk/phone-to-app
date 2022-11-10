@@ -1,14 +1,10 @@
 package com.vonage.tutorial.phonetoappabdul
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.*
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.telecom.PhoneAccount
-import android.telecom.PhoneAccountHandle
-import android.telecom.TelecomManager
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -16,16 +12,14 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.google.firebase.messaging.FirebaseMessaging
-import com.google.firebase.messaging.RemoteMessage
 import com.nexmo.client.NexmoCall
+import com.nexmo.client.NexmoCallMemberStatus.*
 import com.nexmo.client.NexmoClient
 import com.nexmo.client.request_listener.NexmoApiError
 import com.nexmo.client.request_listener.NexmoConnectionListener
 import com.nexmo.client.request_listener.NexmoRequestListener
-import com.nexmo.utils.logger.ILogger
+import ua.slando.R
 
 class MainActivity : AppCompatActivity() {
 
@@ -35,15 +29,20 @@ class MainActivity : AppCompatActivity() {
     private lateinit var answerCallButton: Button
     private lateinit var rejectCallButton: Button
     private lateinit var endCallButton: Button
+    private lateinit var callToAndriy1: Button
+    private lateinit var callToAndriy2: Button
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val clientManager = ClientManager(applicationContext)
+        val clientManager = App.clientManager
 
         // request permission
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this, Manifest.permission.RECORD_AUDIO
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 123);
         }
 
@@ -54,6 +53,15 @@ class MainActivity : AppCompatActivity() {
         answerCallButton = findViewById(R.id.answerCallButton)
         rejectCallButton = findViewById(R.id.rejectCallButton)
         endCallButton = findViewById(R.id.endCallButton)
+        callToAndriy1 = findViewById(R.id.callToAndriy1Button)
+        callToAndriy2 = findViewById(R.id.callToAndriy2Button)
+
+        clientManager.callStatus.observe(this) { status ->
+            when(status) {
+                CANCELLED, COMPLETED, FAILED, TIMEOUT, REJECTED -> showInitialCallState()
+                else -> {}
+            }
+        }
 
         loginButton.setOnClickListener {
             clientManager.login()
@@ -70,9 +78,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 override fun onSuccess(p0: NexmoCall?) {
-                    answerCallButton.visibility = View.GONE
-                    rejectCallButton.visibility = View.GONE
-                    endCallButton.visibility = View.VISIBLE
+                    showActiveCallState()
                 }
             })
         }
@@ -82,12 +88,10 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onSuccess(p0: NexmoCall?) {
-                answerCallButton.visibility = View.GONE
-                rejectCallButton.visibility = View.GONE
-                endCallButton.visibility = View.GONE
+                showInitialCallState()
             }
         }
-        rejectCallButton.setOnClickListener { clientManager.rejectCall(callTerminateListener)  }
+        rejectCallButton.setOnClickListener { clientManager.rejectCall(callTerminateListener) }
         endCallButton.setOnClickListener { clientManager.endCall(callTerminateListener) }
         // CSDemo: Your app needs to get the user's permission to use the system calling
         telecomPermissionButton.setOnClickListener { enableTelecomPermission() }
@@ -100,18 +104,47 @@ class MainActivity : AppCompatActivity() {
                 telecomPermissionButton.visibility = View.VISIBLE
             }
 
+            runOnUiThread {
+                callToAndriy1.visibility = View.VISIBLE
+                callToAndriy1.setOnClickListener {
+//                    clientManager.doCall("Andriy", object : NexmoRequestListener<NexmoCall> {
+                    clientManager.doCall("Andriy", object : NexmoRequestListener<NexmoCall> {
+                        override fun onError(error: NexmoApiError) {
+                        }
+
+                        override fun onSuccess(result: NexmoCall?) {
+                            showActiveCallState()
+                        }
+                    })
+                }
+            }
+
+            runOnUiThread {
+                callToAndriy2.visibility = View.VISIBLE
+                callToAndriy2.setOnClickListener {
+                    clientManager.doCall("Andriy2", object : NexmoRequestListener<NexmoCall> {
+                        override fun onError(error: NexmoApiError) {
+                        }
+
+                        override fun onSuccess(result: NexmoCall?) {
+                            showActiveCallState()
+                        }
+                    })
+                }
+            }
+
             if (connectionStatus == NexmoConnectionListener.ConnectionStatus.CONNECTED) {
                 // CSDemo: Get the token from firebase and register it with Vonage.
                 FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         task.result?.let { token ->
-                            clientManager.enablePush(token, object : NexmoRequestListener<Void>{
+                            clientManager.enablePush(token, object : NexmoRequestListener<Void> {
                                 override fun onError(error: NexmoApiError) {
                                     connectionStatusTextView.text = error.toString()
                                 }
 
                                 override fun onSuccess(void: Void?) {
-                                    connectionStatusTextView.text = "push enabled"
+                                    connectionStatusTextView.text = "push enabled ${NexmoClient.get().user?.toString()}"
                                 }
                             })
                         }
@@ -121,12 +154,29 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun showActiveCallState() {
+        runOnUiThread {
+            answerCallButton.visibility = View.GONE
+            rejectCallButton.visibility = View.GONE
+            endCallButton.visibility = View.VISIBLE
+        }
+    }
+
+    private fun showInitialCallState() {
+        runOnUiThread {
+            answerCallButton.visibility = View.GONE
+            rejectCallButton.visibility = View.GONE
+            endCallButton.visibility = View.GONE
+        }
+    }
+
     private fun enableTelecomPermission() {
         val intent = Intent()
         intent.setClassName(
             "com.android.server.telecom",
             "com.android.server.telecom.settings.EnableAccountPreferenceActivity"
         )
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(intent)
     }
 }

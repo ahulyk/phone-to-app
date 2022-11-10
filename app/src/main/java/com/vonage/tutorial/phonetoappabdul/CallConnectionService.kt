@@ -1,6 +1,5 @@
 package com.vonage.tutorial.phonetoappabdul
 
-import android.net.Uri
 import android.os.Build
 import android.telecom.*
 import androidx.annotation.RequiresApi
@@ -22,8 +21,8 @@ class CallConnectionService : ConnectionService() {
         val pushInfo = ParcelableUtil.unmarshall(pushInfoBytes!!, RemoteMessage.CREATOR)
         val connection = CallConnection(this, pushInfo)
         connection.processCall()
-        val from = (((JSONObject(pushInfo.data["nexmo"]).get("body") as JSONObject).get("channel") as JSONObject).get("from") as JSONObject).get("number") as String
-        connection.setAddress(Uri.parse("tel:$from"), TelecomManager.PRESENTATION_ALLOWED)
+        val from = (((JSONObject(pushInfo.data["nexmo"]).get("body") as JSONObject).get("channel") as JSONObject).get("from") as JSONObject).get("user") as String
+        connection.setCallerDisplayName(from, TelecomManager.PRESENTATION_ALLOWED)
         connection.connectionProperties = Connection.PROPERTY_SELF_MANAGED
         connection.setInitializing()
         return connection

@@ -3,16 +3,14 @@ package com.vonage.tutorial.phonetoappabdul
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
-import android.os.Handler
 import android.telecom.Connection
 import android.telecom.DisconnectCause
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.google.firebase.messaging.RemoteMessage
 import com.nexmo.client.*
 import com.nexmo.client.request_listener.NexmoApiError
+import com.nexmo.client.request_listener.NexmoConnectionListener
 import com.nexmo.client.request_listener.NexmoRequestListener
-import kotlin.math.log
 
 class CallConnection(private val context: Context,
                      private val pushInfo: RemoteMessage
@@ -29,7 +27,10 @@ class CallConnection(private val context: Context,
         correctly you will get an incoming call. If the user has clicked answer
         before the call comes in, run the answer call code again.
          */
-        ClientManager(context).login()
+        App.clientManager.setClientConnectionListener { status, reason -> }
+        if (!NexmoClient.get().isConnected) {
+            App.clientManager.login()
+        }
         ClientManager.clientConnected.observeForever { connected ->
             if (connected) {
                 NexmoClient.get().processNexmoPush(pushInfo.data, object : NexmoPushEventListener {
@@ -39,6 +40,7 @@ class CallConnection(private val context: Context,
                             answerCall()
                         }
                     }
+
                     override fun onNewEvent(event: NexmoEvent?) {}
                     override fun onError(error: NexmoApiError?) {}
                 })
@@ -47,6 +49,9 @@ class CallConnection(private val context: Context,
                 destroy()
             }
         }
+//        ClientManager.clientConnected.observeForever { connected ->
+//
+//        }
     }
 
     override fun onDisconnect() {
@@ -80,6 +85,7 @@ class CallConnection(private val context: Context,
                 override fun onMuteChanged(newState: NexmoMediaActionState?, member: NexmoMember?) {}
                 override fun onEarmuffChanged(newState: NexmoMediaActionState?, member: NexmoMember?) {}
                 override fun onDTMF(dtmf: String?, member: NexmoMember?) {}
+                override fun onLegTransfer(event: NexmoLegTransferEvent?, member: NexmoMember?) {}
             })
         } else {
             shouldAnswerCall = true
@@ -100,7 +106,7 @@ class CallConnection(private val context: Context,
         if (activeCall != null) {
             endCall()
         }
-        setDisconnected(DisconnectCause(DisconnectCause.LOCAL))
+        setDisconnected(DisconnectCause(DisconnectCause.REJECTED))
         destroy()
     }
 }
