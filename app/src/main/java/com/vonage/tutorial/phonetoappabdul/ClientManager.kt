@@ -75,6 +75,7 @@ class ClientManager(private val context: Context) {
             .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER).build()
         telecomManager.registerPhoneAccount(phoneAccount)
 
+
 //        // CSDemo: Start an incoming call ConnectionService Call when there is an incoming call
 //        FirebaseMessagingService.firebaseRemoteMessage.observeForever {
 //            startIncomingCall(it)

@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var endCallButton: Button
     private lateinit var callToAndriy1: Button
     private lateinit var callToAndriy2: Button
+    private lateinit var callToNazarButton: Button
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +56,7 @@ class MainActivity : AppCompatActivity() {
         endCallButton = findViewById(R.id.endCallButton)
         callToAndriy1 = findViewById(R.id.callToAndriy1Button)
         callToAndriy2 = findViewById(R.id.callToAndriy2Button)
+        callToNazarButton = findViewById(R.id.callToNazarButton)
 
         clientManager.callStatus.observe(this) { status ->
             when(status) {
@@ -107,7 +109,6 @@ class MainActivity : AppCompatActivity() {
             runOnUiThread {
                 callToAndriy1.visibility = View.VISIBLE
                 callToAndriy1.setOnClickListener {
-//                    clientManager.doCall("Andriy", object : NexmoRequestListener<NexmoCall> {
                     clientManager.doCall("Andriy", object : NexmoRequestListener<NexmoCall> {
                         override fun onError(error: NexmoApiError) {
                         }
@@ -123,6 +124,20 @@ class MainActivity : AppCompatActivity() {
                 callToAndriy2.visibility = View.VISIBLE
                 callToAndriy2.setOnClickListener {
                     clientManager.doCall("Andriy2", object : NexmoRequestListener<NexmoCall> {
+                        override fun onError(error: NexmoApiError) {
+                        }
+
+                        override fun onSuccess(result: NexmoCall?) {
+                            showActiveCallState()
+                        }
+                    })
+                }
+            }
+
+            runOnUiThread {
+                callToNazarButton.visibility = View.VISIBLE
+                callToNazarButton.setOnClickListener {
+                    clientManager.doCall("Nazar", object : NexmoRequestListener<NexmoCall> {
                         override fun onError(error: NexmoApiError) {
                         }
 

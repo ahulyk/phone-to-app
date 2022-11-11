@@ -9,11 +9,11 @@ import androidx.annotation.RequiresApi
 import com.google.firebase.messaging.RemoteMessage
 import com.nexmo.client.*
 import com.nexmo.client.request_listener.NexmoApiError
-import com.nexmo.client.request_listener.NexmoConnectionListener
 import com.nexmo.client.request_listener.NexmoRequestListener
 
-class CallConnection(private val context: Context,
-                     private val pushInfo: RemoteMessage
+class CallConnection(
+    private val context: Context,
+    private val pushInfo: RemoteMessage
 ) : Connection() {
 
     var activeCall: NexmoCall? = null
@@ -28,9 +28,15 @@ class CallConnection(private val context: Context,
         before the call comes in, run the answer call code again.
          */
         App.clientManager.setClientConnectionListener { status, reason -> }
-        if (!NexmoClient.get().isConnected) {
-            App.clientManager.login()
+//        if (!NexmoClient.get().isConnected) {
+        App.clientManager.login()
+        NexmoClient.get().addIncomingCallListener { call ->
+            activeCall = call
+            if (shouldAnswerCall) {
+                answerCall()
+            }
         }
+
         ClientManager.clientConnected.observeForever { connected ->
             if (connected) {
                 NexmoClient.get().processNexmoPush(pushInfo.data, object : NexmoPushEventListener {
@@ -74,16 +80,30 @@ class CallConnection(private val context: Context,
                     setActive()
                 }
             })
-            activeCall?.addCallEventListener(object: NexmoCallEventListener {
-                override fun onMemberStatusUpdated(newState: NexmoCallMemberStatus?, member: NexmoMember?) {
+            activeCall?.addCallEventListener(object : NexmoCallEventListener {
+                override fun onMemberStatusUpdated(
+                    newState: NexmoCallMemberStatus?,
+                    member: NexmoMember?
+                ) {
                     if (newState == NexmoCallMemberStatus.COMPLETED || newState == NexmoCallMemberStatus.CANCELLED) {
                         endCall()
                         setDisconnected(DisconnectCause(DisconnectCause.REMOTE))
                         destroy()
                     }
                 }
-                override fun onMuteChanged(newState: NexmoMediaActionState?, member: NexmoMember?) {}
-                override fun onEarmuffChanged(newState: NexmoMediaActionState?, member: NexmoMember?) {}
+
+                override fun onMuteChanged(
+                    newState: NexmoMediaActionState?,
+                    member: NexmoMember?
+                ) {
+                }
+
+                override fun onEarmuffChanged(
+                    newState: NexmoMediaActionState?,
+                    member: NexmoMember?
+                ) {
+                }
+
                 override fun onDTMF(dtmf: String?, member: NexmoMember?) {}
                 override fun onLegTransfer(event: NexmoLegTransferEvent?, member: NexmoMember?) {}
             })
