@@ -70,9 +70,9 @@ class ClientManager(private val context: Context) {
         client = NexmoClient.get()
         val componentName = ComponentName(context, CallConnectionService::class.java)
         telecomManager = context.getSystemService(Context.TELECOM_SERVICE) as TelecomManager
-        phoneAccountHandle = PhoneAccountHandle(componentName, "Vonage Voip Calling")
-        val phoneAccount = PhoneAccount.builder(phoneAccountHandle, "Vonage Voip Calling")
-            .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER).build()
+        phoneAccountHandle = PhoneAccountHandle(componentName, "OLX Voip Calling")
+        val phoneAccount = PhoneAccount.builder(phoneAccountHandle, "OLX Voip Calling")
+            .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER or PhoneAccount.CAPABILITY_CONNECTION_MANAGER).build()
         telecomManager.registerPhoneAccount(phoneAccount)
 
 
