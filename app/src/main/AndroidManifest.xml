@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MANAGE_OWN_CALLS" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <application
         android:name="com.vonage.tutorial.phonetoappabdul.App"
@@ -18,7 +19,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Phonetoapp">
-        <activity android:name="com.vonage.tutorial.phonetoappabdul.MainActivity">
+        <activity android:name="com.vonage.tutorial.phonetoappabdul.outgoing.MainActivityNew">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -32,7 +33,7 @@
             </intent-filter>
         </service>
         <service
-            android:name="com.vonage.tutorial.phonetoappabdul.CallConnectionService"
+            android:name="com.vonage.tutorial.phonetoappabdul.outgoing.CallConnectionService"
             android:exported="false"
             android:permission="android.permission.BIND_TELECOM_CONNECTION_SERVICE">
             <intent-filter>
