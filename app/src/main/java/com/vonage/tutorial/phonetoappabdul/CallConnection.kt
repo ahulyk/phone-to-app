@@ -11,10 +11,16 @@ import com.nexmo.client.*
 import com.nexmo.client.request_listener.NexmoApiError
 import com.nexmo.client.request_listener.NexmoRequestListener
 
+@RequiresApi(Build.VERSION_CODES.O)
 class CallConnection(
     private val context: Context,
-    private val pushInfo: RemoteMessage
+    private val pushInfo: RemoteMessage?
 ) : Connection() {
+
+    init {
+        connectionProperties = PROPERTY_SELF_MANAGED
+        audioModeIsVoip = true
+    }
 
     var activeCall: NexmoCall? = null
     var shouldAnswerCall = false
@@ -39,7 +45,7 @@ class CallConnection(
 
         ClientManager.clientConnected.observeForever { connected ->
             if (connected) {
-                NexmoClient.get().processNexmoPush(pushInfo.data, object : NexmoPushEventListener {
+                NexmoClient.get().processNexmoPush(pushInfo?.data, object : NexmoPushEventListener {
                     override fun onIncomingCall(call: NexmoCall?) {
                         activeCall = call
                         if (shouldAnswerCall) {

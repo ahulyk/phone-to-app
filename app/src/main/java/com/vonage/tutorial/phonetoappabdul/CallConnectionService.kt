@@ -5,6 +5,9 @@ import android.os.Build
 import android.telecom.*
 import androidx.annotation.RequiresApi
 import com.google.firebase.messaging.RemoteMessage
+import com.nexmo.client.*
+import com.nexmo.client.request_listener.NexmoApiError
+import com.nexmo.client.request_listener.NexmoRequestListener
 import org.json.JSONObject
 
 class CallConnectionService : ConnectionService() {
@@ -39,4 +42,26 @@ class CallConnectionService : ConnectionService() {
     ) {
         super.onCreateIncomingConnectionFailed(connectionManagerPhoneAccount, request)
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onCreateOutgoingConnection(
+        connectionManagerPhoneAccount: PhoneAccountHandle?,
+        request: ConnectionRequest?
+    ): Connection {
+        val connection = CallConnection(this, null)
+        connection.setCallerDisplayName("Test user))))", TelecomManager.PRESENTATION_ALLOWED)
+        connection.connectionProperties = Connection.PROPERTY_SELF_MANAGED
+        connection.setInitializing()
+        App.clientManager.doCall("Andriy", object : NexmoRequestListener<NexmoCall> {
+            override fun onError(error: NexmoApiError) {
+            }
+
+            override fun onSuccess(result: NexmoCall?) {
+                connection.setActive()
+            }
+
+        })
+        return connection
+    }
+
 }

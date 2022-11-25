@@ -40,11 +40,17 @@ class MainActivity : AppCompatActivity() {
         val clientManager = App.clientManager
 
         // request permission
-        if (ContextCompat.checkSelfPermission(
-                this, Manifest.permission.RECORD_AUDIO
-            ) != PackageManager.PERMISSION_GRANTED
+        if ((ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.RECORD_AUDIO
+            ) != PackageManager.PERMISSION_GRANTED) || (
+                    (ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.CALL_PHONE
+                    ) != PackageManager.PERMISSION_GRANTED)
+                    )
         ) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 123);
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.CALL_PHONE), 123);
         }
 
         // init views
@@ -59,7 +65,7 @@ class MainActivity : AppCompatActivity() {
         callToNazarButton = findViewById(R.id.callToNazarButton)
 
         clientManager.callStatus.observe(this) { status ->
-            when(status) {
+            when (status) {
                 CANCELLED, COMPLETED, FAILED, TIMEOUT, REJECTED -> showInitialCallState()
                 else -> {}
             }
@@ -68,9 +74,9 @@ class MainActivity : AppCompatActivity() {
         loginButton.setOnClickListener {
             clientManager.login()
             clientManager.setClientCallListener {
-            answerCallButton.visibility = View.VISIBLE
-            rejectCallButton.visibility = View.VISIBLE
-            endCallButton.visibility = View.GONE
+                answerCallButton.visibility = View.VISIBLE
+                rejectCallButton.visibility = View.VISIBLE
+                endCallButton.visibility = View.GONE
             }
         }
 
@@ -109,14 +115,15 @@ class MainActivity : AppCompatActivity() {
             runOnUiThread {
                 callToAndriy1.visibility = View.VISIBLE
                 callToAndriy1.setOnClickListener {
-                    clientManager.doCall("Andriy", object : NexmoRequestListener<NexmoCall> {
-                        override fun onError(error: NexmoApiError) {
-                        }
-
-                        override fun onSuccess(result: NexmoCall?) {
-                            showActiveCallState()
-                        }
-                    })
+                    clientManager.placeOutgoingCall()
+//                    clientManager.doCall("Andriy", object : NexmoRequestListener<NexmoCall> {
+//                        override fun onError(error: NexmoApiError) {
+//                        }
+//
+//                        override fun onSuccess(result: NexmoCall?) {
+//                            showActiveCallState()
+//                        }
+//                    })
                 }
             }
 
@@ -159,7 +166,8 @@ class MainActivity : AppCompatActivity() {
                                 }
 
                                 override fun onSuccess(void: Void?) {
-                                    connectionStatusTextView.text = "push enabled ${NexmoClient.get().user?.toString()}"
+                                    connectionStatusTextView.text =
+                                        "push enabled ${NexmoClient.get().user?.toString()}"
                                 }
                             })
                         }

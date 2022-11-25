@@ -5,12 +5,16 @@ import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.telecom.PhoneAccount
 import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.os.bundleOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.messaging.RemoteMessage
@@ -18,6 +22,7 @@ import com.nexmo.client.*
 import com.nexmo.client.request_listener.NexmoApiError
 import com.nexmo.client.request_listener.NexmoConnectionListener
 import com.nexmo.client.request_listener.NexmoRequestListener
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 class ClientManager(private val context: Context) {
@@ -28,7 +33,7 @@ class ClientManager(private val context: Context) {
             get() = internalClientConnected
     }
 
-    private var call: NexmoCall? = null
+    var call: NexmoCall? = null
     private lateinit var client: NexmoClient
     private lateinit var telecomManager: TelecomManager
     private lateinit var phoneAccountHandle: PhoneAccountHandle
@@ -70,9 +75,11 @@ class ClientManager(private val context: Context) {
         client = NexmoClient.get()
         val componentName = ComponentName(context, CallConnectionService::class.java)
         telecomManager = context.getSystemService(Context.TELECOM_SERVICE) as TelecomManager
-        phoneAccountHandle = PhoneAccountHandle(componentName, "OLX Voip Calling")
-        val phoneAccount = PhoneAccount.builder(phoneAccountHandle, "OLX Voip Calling")
-            .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER or PhoneAccount.CAPABILITY_CONNECTION_MANAGER).build()
+        phoneAccountHandle = PhoneAccountHandle(componentName, PhoneAccount.SCHEME_SIP)
+        val phoneAccount = PhoneAccount.builder(phoneAccountHandle, PhoneAccount.SCHEME_SIP)
+//            .setCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED)
+//            .setCapabilities(PhoneAccount.CAPABILITY_CALL_PROVIDER or PhoneAccount.CAPABILITY_CONNECTION_MANAGER)
+            .build()
         telecomManager.registerPhoneAccount(phoneAccount)
 
 
@@ -108,8 +115,8 @@ class ClientManager(private val context: Context) {
         // CSDemo: If the client is connected, the Client SDK expects your own app code to handle the call
         if (context.checkSelfPermission(Manifest.permission.MANAGE_OWN_CALLS) == PackageManager.PERMISSION_GRANTED
             && call == null
-            //&&
-            //!client.isConnected
+        //&&
+        //!client.isConnected
         ) {
             val bytes = ParcelableUtil.marshall(remoteMessage)
             val extras = Bundle()
@@ -154,10 +161,7 @@ class ClientManager(private val context: Context) {
 //        val notification = notificationBuilder.build()
 //
 //        notificationManager.notify(43424, notification)
-
-
     }
-
 
     @SuppressLint("MissingPermission")
     fun answerCall(listener: NexmoRequestListener<NexmoCall>) {
@@ -174,7 +178,34 @@ class ClientManager(private val context: Context) {
         call = null
     }
 
+    fun placeOutgoingCall() {
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CALL_PHONE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
+        //  telecomManager.placeCall(Uri.fromParts(PhoneAccount.SCHEME_SIP, "Andriy", null), bundleOf())
+//        telecomManager.placeCall(Uri.parse("olx:Andriy"), bundleOf())
+
+        val outgoingUri =
+            Uri.fromParts(PhoneAccount.SCHEME_SIP, "Andriy", null)
+        val outgoingExtras = Bundle()
+        outgoingExtras.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, phoneAccountHandle)
+        outgoingExtras.putBundle(TelecomManager.EXTRA_OUTGOING_CALL_EXTRAS, bundleOf())
+        telecomManager.placeCall(outgoingUri, outgoingExtras)
+    }
+
     fun doCall(userName: String, listener: NexmoRequestListener<NexmoCall>) {
+
         client.serverCall(
             userName, null, object : NexmoRequestListener<NexmoCall> {
                 override fun onError(error: NexmoApiError) {
@@ -185,6 +216,7 @@ class ClientManager(private val context: Context) {
                     call = result
                     call?.addCallEventListener(callStatusLister)
                     listener.onSuccess(result)
+
                 }
             })
     }
