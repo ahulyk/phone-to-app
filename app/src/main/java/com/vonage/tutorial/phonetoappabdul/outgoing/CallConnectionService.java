@@ -10,6 +10,8 @@ import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
+
 @TargetApi(Build.VERSION_CODES.M)
 public class CallConnectionService extends ConnectionService {
 
@@ -36,7 +38,7 @@ public class CallConnectionService extends ConnectionService {
     ) {
         super.onCreateIncomingConnection(connectionManagerPhoneAccount, request);
 
-        Log.i(TAG,"onCreateIncomingConnection");
+        Log.i(TAG, "onCreateIncomingConnection");
 
         CallConnection conn = new CallConnection(this);
         conn.processCall("inbound");
@@ -56,7 +58,7 @@ public class CallConnectionService extends ConnectionService {
         Log.i(TAG, "onCreateOutgoingConnectionFailed");
     }
 
-    @TargetApi(Build.VERSION_CODES.N_MR1)
+    @TargetApi(Build.VERSION_CODES.O)
     @Override
     public Connection onCreateOutgoingConnection(
             PhoneAccountHandle connectionManagerPhoneAccount,
@@ -64,7 +66,7 @@ public class CallConnectionService extends ConnectionService {
     ) {
         super.onCreateOutgoingConnection(connectionManagerPhoneAccount, request);
 
-        Log.i(TAG,"onCreateOutgoingConnection");
+        Log.i(TAG, "onCreateOutgoingConnection");
 
         CallConnection conn = new CallConnection(this);
         conn.processCall("outbound");

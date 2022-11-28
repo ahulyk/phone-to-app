@@ -35,7 +35,7 @@ public class CallConnection extends Connection {
 
     // something should be handled in clientManager
     private String otherUser = "Andriy2";
-    private String yourJWT = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2wiOnsicGF0aHMiOnsiLyovYXBwbGljYXRpb25zLyoqIjp7fSwiLyovY29udmVyc2F0aW9ucy8qKiI6e30sIi8qL2RldmljZXMvKioiOnt9LCIvKi9pbWFnZS8qKiI6e30sIi8qL2tub2NraW5nLyoqIjp7fSwiLyovbGVncy8qKiI6e30sIi8qL21lZGlhLyoqIjp7fSwiLyovcHVzaC8qKiI6e30sIi8qL3Nlc3Npb25zLyoqIjp7fSwiLyovdXNlcnMvKioiOnt9fX0sImFwcGxpY2F0aW9uX2lkIjoiMzkxNjc4ZDUtYjkzMy00N2Q3LWFkMTItZWNhMWVkZTNmMmVmIiwiZXhwIjoxNjY5NDY1ODQ5LCJpYXQiOjE2NjkzNzk0NDksImp0aSI6ImY2YTM1M2UzLWQzODctNzQ0NS0yOTdhLTgwYjE1NmNlNTcyMSIsInN1YiI6IkFuZHJpeSJ9.Jp6QyQwcupRT5EuWCtxxXikZBISPQMpaAGfWhteUxGvkTZJtFS6bnvETH7DLwi2XZkAI6Q9EnuQ6hVrlC1oe-jSivlBCGYV5YoFHvzrI3tLKYopwHqlNW9plq6AaHyQ5kqFALy8XDzo0jeD-CnHl-iagCZmpgsjPVesMOM269aUhkQoIA2FzHI0486XQSTKRasZklexetV6Pxez5owgmXbZtmZn0IZ3vR8HMR9woSUePqokFHkUqjT-e6q6NKn3h1hH8IYltg72JWaZ5hVvjJl0HF_YT_31LzL9cJ0vtZlfgZxI7LcP0DUMo_SdH9oXcP0Sb-n_5NfK9eacbHQJ9Ig";
+    private String yourJWT = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2wiOnsicGF0aHMiOnsiLyovYXBwbGljYXRpb25zLyoqIjp7fSwiLyovY29udmVyc2F0aW9ucy8qKiI6e30sIi8qL2RldmljZXMvKioiOnt9LCIvKi9pbWFnZS8qKiI6e30sIi8qL2tub2NraW5nLyoqIjp7fSwiLyovbGVncy8qKiI6e30sIi8qL21lZGlhLyoqIjp7fSwiLyovcHVzaC8qKiI6e30sIi8qL3Nlc3Npb25zLyoqIjp7fSwiLyovdXNlcnMvKioiOnt9fX0sImFwcGxpY2F0aW9uX2lkIjoiMzkxNjc4ZDUtYjkzMy00N2Q3LWFkMTItZWNhMWVkZTNmMmVmIiwiZXhwIjoxNjY5NDY2NDcyLCJpYXQiOjE2NjkzODAwNzIsImp0aSI6ImVlM2IwZjMyLWRlYTctYjhmYi1iMzk0LTFmNjExNTk5ZThlMiIsInN1YiI6IkFuZHJpeSJ9.me5vj74PnWqYsLkudDbvCJ0poJCmKL6rA0evlnS0XNGMIQn3oeix4uCKkHn1CxltwnKGmBCrss7oaYCi4q-hzNdBk5UhBI78ZbrICxFTNEDvtbePJ83rzlDQ4LR9XITBhCmpQMybfxYSljBUBXr4h_AGdtLz6whsiiEnW671qQ6D8cMX7uidfLLlViudWqR61abKdKQU9My2ZKbRgv1gkgl1Nc3rNa17CQ-hk_aTc3ZY9LHqbc7DcupV9mSDdwsoG4jk51snw2N0BPEigtwySxjWHOmnxBFA97uBpV7DA4axZZ0gfsEflJhRFMvE7K90OuTOSzk4IyeF-Ciyofx2oA";
 
     public Boolean shouldAnswerCall = Boolean.FALSE;
 
@@ -66,7 +66,7 @@ public class CallConnection extends Connection {
                     setDisconnected(new DisconnectCause(DisconnectCause.REMOTE));
                     destroy();
                 }
-                if (callStatus == NexmoCallMemberStatus.ANSWERED) {
+                if (callStatus == NexmoCallMemberStatus.ANSWERED && !member.getUser().getName().equals("Andriy")) {
                     setInitialized();
                     setActive();
                 }
