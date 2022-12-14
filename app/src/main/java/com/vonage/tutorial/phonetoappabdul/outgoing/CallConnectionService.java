@@ -73,6 +73,8 @@ public class CallConnectionService extends ConnectionService {
 
         conn.setConnectionProperties(Connection.PROPERTY_SELF_MANAGED);
         conn.setAddress(Uri.parse("sip:" + "andriy"), TelecomManager.PRESENTATION_ALLOWED);
+        conn.setCallerDisplayName("subscriber", TelecomManager.PRESENTATION_ALLOWED);
+
         conn.setInitializing();
         return conn;
     }

@@ -34,8 +34,8 @@ public class CallConnection extends Connection {
     private final Context mContext;
 
     // something should be handled in clientManager
-    private String otherUser = "Andriy2";
-    private String yourJWT = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2wiOnsicGF0aHMiOnsiLyovYXBwbGljYXRpb25zLyoqIjp7fSwiLyovY29udmVyc2F0aW9ucy8qKiI6e30sIi8qL2RldmljZXMvKioiOnt9LCIvKi9pbWFnZS8qKiI6e30sIi8qL2tub2NraW5nLyoqIjp7fSwiLyovbGVncy8qKiI6e30sIi8qL21lZGlhLyoqIjp7fSwiLyovcHVzaC8qKiI6e30sIi8qL3Nlc3Npb25zLyoqIjp7fSwiLyovdXNlcnMvKioiOnt9fX0sImFwcGxpY2F0aW9uX2lkIjoiMzkxNjc4ZDUtYjkzMy00N2Q3LWFkMTItZWNhMWVkZTNmMmVmIiwiZXhwIjoxNjY5NDY2NDcyLCJpYXQiOjE2NjkzODAwNzIsImp0aSI6ImVlM2IwZjMyLWRlYTctYjhmYi1iMzk0LTFmNjExNTk5ZThlMiIsInN1YiI6IkFuZHJpeSJ9.me5vj74PnWqYsLkudDbvCJ0poJCmKL6rA0evlnS0XNGMIQn3oeix4uCKkHn1CxltwnKGmBCrss7oaYCi4q-hzNdBk5UhBI78ZbrICxFTNEDvtbePJ83rzlDQ4LR9XITBhCmpQMybfxYSljBUBXr4h_AGdtLz6whsiiEnW671qQ6D8cMX7uidfLLlViudWqR61abKdKQU9My2ZKbRgv1gkgl1Nc3rNa17CQ-hk_aTc3ZY9LHqbc7DcupV9mSDdwsoG4jk51snw2N0BPEigtwySxjWHOmnxBFA97uBpV7DA4axZZ0gfsEflJhRFMvE7K90OuTOSzk4IyeF-Ciyofx2oA";
+    private String otherUser = "Andriy";
+    private String yourJWT = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2wiOnsicGF0aHMiOnsiLyovYXBwbGljYXRpb25zLyoqIjp7fSwiLyovY29udmVyc2F0aW9ucy8qKiI6e30sIi8qL2RldmljZXMvKioiOnt9LCIvKi9pbWFnZS8qKiI6e30sIi8qL2tub2NraW5nLyoqIjp7fSwiLyovbGVncy8qKiI6e30sIi8qL21lZGlhLyoqIjp7fSwiLyovcHVzaC8qKiI6e30sIi8qL3Nlc3Npb25zLyoqIjp7fSwiLyovdXNlcnMvKioiOnt9fX0sImFwcGxpY2F0aW9uX2lkIjoiMzkxNjc4ZDUtYjkzMy00N2Q3LWFkMTItZWNhMWVkZTNmMmVmIiwiZXhwIjoxNjY5NzI5MTUzLCJpYXQiOjE2Njk2NDI3NTMsImp0aSI6ImJlZmE4NWQzLWZhZmUtYzI4OS1hODA3LWEwYWUwNTBkMWNkNSIsInN1YiI6IkFuZHJpeTIifQ.nq8QcfALUlJtrupES896zxjpUjiT9Zadu46ZWJvAW_fugqs6JavTgU56Ji0W_TGgI4WUzVAqs7-w64A5YUjaeusuB7RMdV1yHoHSwFcTGdEH92K0eopbiI6UO6PJrA_X-jm-doziVYZsWbeWLx4slzHFaaYV1o-rEC8MtPm-hYN6Op8ml-KevqpmasD8V4KT8615x5qOyjllA5xJR5guV4rsVhPWST1Ii_7lZp-c7DT8Rw5D0Mq0MWU_5M7kJfuZJelLjnAHyK03FfdoHAINuVhpy1AgUHKirhbbJwf5TObd0sLPcpFZGACNT_rP3Zyb5PZiZXzFnPaNUXexBcCTmw";
 
     public Boolean shouldAnswerCall = Boolean.FALSE;
 
@@ -66,7 +66,7 @@ public class CallConnection extends Connection {
                     setDisconnected(new DisconnectCause(DisconnectCause.REMOTE));
                     destroy();
                 }
-                if (callStatus == NexmoCallMemberStatus.ANSWERED && !member.getUser().getName().equals("Andriy")) {
+                if (callStatus == NexmoCallMemberStatus.ANSWERED && !member.getUser().getName().equals("Andriy2")) {
                     setInitialized();
                     setActive();
                 }
@@ -133,16 +133,19 @@ public class CallConnection extends Connection {
 
         // if not login, login the user, something should be handled in clientManager
         // initialize NexmoClient
-        client = new NexmoClient
-                .Builder()
-                .restEnvironmentHost("https://api-us-1.nexmo.com")
-                .environmentHost("https://ws-us-1.nexmo.com")
-                .imageProcessingServiceUrl("https://api-us-1.nexmo.com/v1/image")
-                .logLevel(
-                        ILogger.eLogLevel.SENSITIVE
-                )
-                .logKey(0x0L)
-                .build(mContext);
+        client = NexmoClient.get();
+        if (client == null) {
+            client = new NexmoClient
+                    .Builder()
+                    .restEnvironmentHost("https://api-us-1.nexmo.com")
+                    .environmentHost("https://ws-us-1.nexmo.com")
+                    .imageProcessingServiceUrl("https://api-us-1.nexmo.com/v1/image")
+                    .logLevel(
+                            ILogger.eLogLevel.SENSITIVE
+                    )
+                    .logKey(0x0L)
+                    .build(mContext);
+        }
         // add connection listener to monitor connection state
         client.setConnectionListener((connectionStatus, connectionStatusReason) -> {
             if (connectionStatus == NexmoConnectionListener.ConnectionStatus.CONNECTED) {
@@ -151,6 +154,12 @@ public class CallConnection extends Connection {
                 }
             }
         });
+        if (client.isConnected()) {
+            if (direction == "outbound") {
+                makeCall();
+            }
+        }
+
         // add incoming call listener for incoming calls
         client.addIncomingCallListener(it -> {
             activeCall = it;
